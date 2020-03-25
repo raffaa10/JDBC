@@ -14,6 +14,11 @@ import java.util.Iterator;
 
 public class TestSelect {
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+		Connection connection = null;
+		Statement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
 		// recupere le fichier properties
 		ResourceBundle db = ResourceBundle.getBundle("database");
 
@@ -21,7 +26,7 @@ public class TestSelect {
 		Class.forName(db.getString("db.driver"));
 
 		// creer la connection
-		Connection connection = DriverManager.getConnection(db.getString("db.url"), db.getString("db.user"),
+		connection = DriverManager.getConnection(db.getString("db.url"), db.getString("db.user"),
 				db.getString("db.pass"));
 
 		// affiche la connexion
@@ -32,8 +37,8 @@ public class TestSelect {
 			System.out.println("Il y a une erreur de connection");
 		
 		//fait un SELECT dans la base de compta sur la table fournisseur
-		Statement statement = connection.createStatement();
-		ResultSet resultSet = statement.executeQuery("SELECT * FROM fournisseur");
+		statement = connection.createStatement();
+		resultSet = statement.executeQuery("SELECT * FROM fournisseur");
 		ArrayList<Fournisseur> listeFournisseurs = new ArrayList<Fournisseur>();
 		while (resultSet.next()) {
 			listeFournisseurs.add(new Fournisseur(resultSet.getInt("id"),resultSet.getString("nom")));
@@ -47,6 +52,29 @@ public class TestSelect {
 		}
 
 		// liberation des ressources
+		resultSet.close();
+		statement.close();
 		connection.close();
+	} catch (
+
+	SQLException se) {
+		// Handle errors for JDBC
+		se.printStackTrace();
+	} catch (Exception e) {
+		// Handle errors for Class.forName
+		e.printStackTrace();
+	} finally {
+		// finally block used to close resources
+		try {
+			if (resultSet != null)
+				resultSet.close();
+			if (statement != null)
+				statement.close();
+			if (connection != null)
+				connection.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} // end finally try
+	} // end try
 	}
 }
