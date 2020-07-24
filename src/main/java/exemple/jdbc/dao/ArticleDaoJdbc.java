@@ -10,17 +10,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import exemple.jdbc.entity.Article;
-import fr.diginamic.jdbc.entites.Fournisseur;
 
 
 public class ArticleDaoJdbc implements ArticleDao {
 
 	public static void main(String[] a) {
-		// Réflichissez à gérer l'ajout d'un Fournisseur dans la classe FournisseurDaoJdbc
-		// méthode insert...
-		FournisseurDaoJdbc ofo = new FournisseurDaoJdbc();
-		List<Fournisseur> listeFour = ofo.extraire();
-		
+				
 		ArticleDaoJdbc oart = new ArticleDaoJdbc();
 		List<Article> listeArti = oart.extraire();
 		for (Article ar : listeArti) {
@@ -70,21 +65,85 @@ public class ArticleDaoJdbc implements ArticleDao {
 
 	@Override
 	public void insert(Article article) {
-		// TODO Auto-generated method stub
+
+		Connection connection = null;
+		try {
+			connection = getConnection();
+			Statement monCanal = connection.createStatement();
+			int nb = monCanal.executeUpdate("INSERT INTO t_article (id,nom) values (" + article.getId() + ",'"
+					+ article.getDesignation() + "');");
+
+			if (nb == 1) {
+				System.out.println("Article ajouté !");
+			}
+		} catch (Exception e) {
+			System.out.println("Erreur d'éxecution : " + e.getMessage());
+		} finally {
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (SQLException e) {
+				System.err.println("Problem de connexion close : " + e.getMessage());
+			}
+		}
 
 	}
 
 	@Override
 	public int update(String ancienNom, String nouveauNom) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		Connection connection = null;
+		int nb = 0;
+		try {
+			connection = getConnection();
+			Statement monCanal = connection.createStatement();
+			nb = monCanal.executeUpdate(
+					"UPDATE t_article SET nom = '" + nouveauNom + "' WHERE nom = '" + ancienNom + "';");
+
+			monCanal.close();
+
+		} catch (Exception e) {
+			System.out.println("Erreur d'éxecution : " + e.getMessage());
+		} finally {
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (SQLException e) {
+				System.err.println("Problem de connexion close : " + e.getMessage());
+			}
+		}
+		return nb;
 	}
 
 	@Override
 	public boolean delete(Article article) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		Connection connection = null;
+		boolean nb = false;
+		try {
+			connection = getConnection();
+			Statement monCanal = connection.createStatement();
+			nb = monCanal.executeUpdate(
+					"delete from t_fournisseur WHERE id="+article.getId()+";") == 1;
+			monCanal.close();
+		}
+		catch(Exception e) {
+			System.err.println("Erreur d'éxecution : " + e.getMessage());
+		}
+		finally {
+			try {
+				if (connection != null)
+					connection.close();
+			} catch (SQLException e) {
+				System.err.println("Problem de connexion close : " + e.getMessage());
+			}
+		}
+		return nb;
+		
 	}
+	
+	
+	
 	public Connection getConnection() {
 		ResourceBundle db = ResourceBundle.getBundle("database");
 		
